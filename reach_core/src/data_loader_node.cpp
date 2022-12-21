@@ -22,6 +22,9 @@
 
 #include <ament_index_cpp/get_package_share_directory.hpp>
 
+#include <iostream>
+#include <fstream>
+
 const static std::string RESULTS_FOLDER_NAME = "results";
 const static std::string OPT_DB_NAME = "optimized_reach.db";
 // const static std::string OPT_DB_NAME = "reach.db";
@@ -119,15 +122,21 @@ int main(int argc, char** argv) {
     return 0;
   }
 
+  std::ofstream myfile;
+  printf("Saving CSV data loader summary in: ");
+  std::cout << std::filesystem::current_path() << std::endl;
+  myfile.open ("reach_summary.csv");
   if (print_result_total) {
     if (avg_neighbor_count) {
       std::cout << boost::format("%-60s %=25s %=25s %=25s %=25s\n") %
                        "Configuration Name" % "Reach Percentage" %
                        "Normalized Total Pose Score" %
                        "Average Reachable Neighbors" % "Average Joint Distance";
+      myfile << "Configuration Name" << "," << "Reach Percentage" << "," << "Total Pose Score" << "," << "Normalized Total Pose Score" << "Average Reachable Neighbors" << "," << "Average Joint Distance" << "\n";
     } else {
       std::cout << boost::format("%-60s %=25s %=25s\n") % "Configuration Name" %
                        "Reach Percentage" % "Normalized Total Pose Score";
+      myfile << "Configuration Name" << "," << "Reach Percentage" << "," << "Total Pose Score" << "," << "Normalized Total Pose Score" << "\n";
     }
 
     for (size_t i = 0; i < files.size(); ++i) {
@@ -142,14 +151,17 @@ int main(int argc, char** argv) {
                            config.c_str() % res.reach_percentage %
                            res.norm_total_pose_score % res.avg_num_neighbors %
                            res.avg_joint_distance;
+          myfile << config.c_str() << "," << res.reach_percentage << "," << res.total_pose_score << "," << res.norm_total_pose_score << res.avg_num_neighbors << "," << res.avg_joint_distance << "\n";
         } else {
           std::cout << boost::format("%-60s %=25.3f %=25.6f\n") %
                            config.c_str() % res.reach_percentage %
                            res.norm_total_pose_score;
+          myfile << config.c_str() << "," << res.reach_percentage << "," << res.total_pose_score << "," << res.norm_total_pose_score << "\n";
         }
       }
     }
-  }
+    myfile.close();
+  } 
 
   // shutdown
   rclcpp::shutdown();
