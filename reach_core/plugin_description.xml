@@ -6,4 +6,10 @@
       This plugin allows for the use of any combination of other pose evaulation plugins.
     </description>
   </class>
+  <class name="reach_core/plugins/SumFactory" type="reach::plugins::SumFactory" base_class_type="reach::plugins::EvaluationBase">
+    <description>
+      A pose evaluation plugin which loads other pose evaluation plugins and returns a score for an input pose that is the sum of the scores of each individual plugin.
+      This plugin allows for the use of any combination of other pose evaulation plugins.
+    </description>
+  </class>
 </library>
