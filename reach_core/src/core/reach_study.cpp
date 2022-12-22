@@ -357,6 +357,12 @@ void ReachStudy::runInitialReachStudy() {
   current_counter = previous_pct = 0;
   const int cloud_size = static_cast<int>(cloud_->points.size());
 
+  // Save data in a CSV file
+  std::ofstream myfile;
+  printf("Saving ReachRecords in: ");
+  std::cout << std::filesystem::current_path() << std::endl;
+  myfile.open ("reach_record.csv");
+
   if (sp_.ik_solver_config_name !=
       "moveit_reach_plugins/ik/PlannerBasedIKSolver") {
 #pragma omp parallel for
@@ -411,11 +417,13 @@ void ReachStudy::runInitialReachStudy() {
                               cartesian_space_waypoints, joint_space_trajectory,
                               fraction, moveit_trajectory);
         db_->put(msg);
+        myfile << std::to_string(i) << "," << "1" << "," << *score << std::endl;
       } else {
         auto msg = makeRecord(std::to_string(i), false, tgt_pose, seed_state,
                               goal_state, 0.0, sp_.ik_solver_config_name, {},
                               {}, fraction, moveit_trajectory);
         db_->put(msg);
+        myfile << std::to_string(i) << "," << "0" << "," << *score << std::endl;
       }
 
       // Print function progress
@@ -494,6 +502,9 @@ void ReachStudy::runInitialReachStudy() {
   // Save the results of the reach study to a database that we can query later
   db_->calculateResults();
   db_->save(results_dir_ + SAVED_DB_NAME);
+  myfile.close();
+  printf("Saving ReachRecords in: ");
+  std::cout << std::filesystem::current_path() << std::endl;
 }
 
 void ReachStudy::optimizeReachStudyResults() {
